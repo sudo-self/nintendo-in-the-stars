@@ -1,4 +1,4 @@
-## nintendo in the stars
+## Nintendo in the Stars
 
 
 
