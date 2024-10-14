@@ -1,0 +1,128 @@
+<html>
+  <head>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #000;
+        flex-direction: column;
+      }
+      #game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #game {
+        width: 80vw;
+        height: 80vh;
+        max-width: 100%;
+        max-height: 100%;
+        border: 2px solid #d1768c;
+      }
+      select {
+        margin-top: 10px;
+        padding: 5px;
+        background-color: #fff;
+        color: #000;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  </head>
+  <body>
+    <p style="color: #d1768c">Nintendo in the Stars</p>
+
+    <div id="game-container">
+      <div id="game"></div>
+
+      <select id="rom-list">
+        <option>select a game</option>
+      </select>
+      <button id="load-rom">Play Now</button>
+    </div>
+
+    <script>
+      EJS_player = "#game";
+      EJS_core = "nes";
+      EJS_gameName = "Zelda";
+      EJS_color = "#263e0f";
+      EJS_startOnLoaded = true;
+      EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+
+      EJS_gameUrl = "Zelda II - The Adventure of Link (U) [!].nes";
+
+      const script = document.createElement("script");
+      script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+      document.body.appendChild(script);
+
+      fetch("/roms/retro/")
+        .then((response) => response.text())
+        .then((data) => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(data, "text/html");
+          const files = [...doc.querySelectorAll("a")];
+
+          const romList = document.getElementById("rom-list");
+          files.forEach((file) => {
+            const fileName = file.getAttribute("href");
+
+            if (fileName.endsWith(".nes") || fileName.endsWith(".zip")) {
+              const option = document.createElement("option");
+              option.value = `/roms/retro/${fileName}`;
+              option.textContent = decodeURIComponent(fileName);
+              romList.appendChild(option);
+            }
+          });
+        })
+        .catch((error) => console.error("Error fetching ROMs:", error));
+
+      document
+        .getElementById("load-rom")
+        .addEventListener("click", async function () {
+          const romList = document.getElementById("rom-list");
+          const selectedRom = romList.value;
+
+          if (selectedRom !== "Select a ROM") {
+            if (selectedRom.endsWith(".zip")) {
+              const response = await fetch(selectedRom);
+              const blob = await response.blob();
+              const zip = await JSZip.loadAsync(blob);
+
+              let nesFile = null;
+              zip.forEach((relativePath, file) => {
+                if (relativePath.endsWith(".nes")) {
+                  nesFile = file;
+                }
+              });
+
+              if (nesFile) {
+                const nesData = await nesFile.async("blob");
+                const nesUrl = URL.createObjectURL(nesData);
+
+                EJS_gameUrl = nesUrl;
+                reloadEmulator();
+              } else {
+                alert("No .nes file found in the ZIP archive!");
+              }
+            } else {
+              EJS_gameUrl = selectedRom;
+              reloadEmulator();
+            }
+          } else {
+            alert("Please select a ROM file!");
+          }
+        });
+
+      function reloadEmulator() {
+        document.body.removeChild(script);
+        const newScript = document.createElement("script");
+        newScript.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+        document.body.appendChild(newScript);
+      }
+    </script>
+  </body>
+</html>
