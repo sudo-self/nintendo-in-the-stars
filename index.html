@@ -3,8 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="any" href="apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="16x16 32x32">
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Nintendo in the Stars</title>
-    <link rel="icon" href="docs/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
+    <meta name="title" content="Nintendo in the Stars" />
+    <meta name="description" content="Nintendo Forever" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nintendo-in-the-stars.vercel.app" />
+    <meta property="og:title" content="Nintendo in the Stars" />
+    <meta property="og:description" content="Nintendo Forever" />
+    <meta property="og:image" content="https://nintendo-in-the-stars.vercel.app/docs/Logo.png" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://nintendo-in-the-stars.vercel.app" />
+    <meta property="twitter:title" content="Nintendo in the Stars" />
+    <meta property="twitter:description" content="Nintendo Forever" />
+    <meta property="twitter:image" content="https://nintendo-in-the-stars.vercel.app/docs/Logo.png" />
+    <meta name="author" content="Jesse Roper" />
+
     <style>
         body, html {
             height: 100%;
@@ -31,13 +49,13 @@
 </head>
 <body>
     <div id="game">
-        <img src="docs/Logo.png" alt="Logo" class="logo">
+        <img src="docs/Logo.png" alt="Nintendo in the Stars Logo" class="logo">
         <input type="file" id="input" accept=".nes,.zip" style="display: none;">
         <button onclick="document.getElementById('input').click();">Load Game</button>
     </div>
 
     <script>
-        let enableDebug = false; // Change as necessary
+        let enableDebug = false; 
         const supportedCores = {
             "nes": ["nes", "zip"]
         };
@@ -49,29 +67,30 @@
             const parts = file.name.split(".");
             const ext = parts.pop().toLowerCase();
 
-            // Check if the file extension is supported (.nes or .zip)
+          
             if (!supportedCores["nes"].includes(ext)) {
                 alert("Unsupported file type. Please upload a .nes or .zip file.");
                 return;
             }
 
-            // Create a URL for the selected ROM file
+         
             const fileUrl = URL.createObjectURL(file);
 
-            // EmulatorJS configuration
+           
             window.EJS_player = "#game";
             window.EJS_core = "nes";
             window.EJS_color = "#000000";
             window.EJS_startOnLoaded = true;
             window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-            window.EJS_gameUrl = fileUrl; // Load the selected file
+            window.EJS_gameUrl = fileUrl;
 
-            // Load the emulator script
+          
             const script = document.createElement("script");
-            script.src = "data/loader.js"; // Make sure this path is correct
+            script.src = "data/loader.js";
             document.body.appendChild(script);
         };
     </script>
 </body>
 </html>
+
 
