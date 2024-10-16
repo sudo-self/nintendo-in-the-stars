@@ -37,7 +37,7 @@
     </div>
 
     <script>
-        let enableDebug = false;
+        let enableDebug = false; // Change as necessary
         const supportedCores = {
             "nes": ["nes", "zip"]
         };
@@ -49,28 +49,29 @@
             const parts = file.name.split(".");
             const ext = parts.pop().toLowerCase();
 
-        
+            // Check if the file extension is supported (.nes or .zip)
             if (!supportedCores["nes"].includes(ext)) {
                 alert("Unsupported file type. Please upload a .nes or .zip file.");
                 return;
             }
 
-          
+            // Create a URL for the selected ROM file
             const fileUrl = URL.createObjectURL(file);
 
-         
+            // EmulatorJS configuration
             window.EJS_player = "#game";
             window.EJS_core = "nes";
             window.EJS_color = "#000000";
             window.EJS_startOnLoaded = true;
             window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-            window.EJS_gameUrl = fileUrl;
+            window.EJS_gameUrl = fileUrl; // Load the selected file
 
             // Load the emulator script
             const script = document.createElement("script");
-            script.src = "data/loader.js"; 
+            script.src = "data/loader.js"; // Make sure this path is correct
             document.body.appendChild(script);
         };
     </script>
 </body>
 </html>
+
