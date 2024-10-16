@@ -21,61 +21,7 @@ Self-hosted **Javascript** emulation for various system.
 [![Button Legacy]][Legacy]
     
 [![Button Contributors]][Contributors]   
- 
-Join our Discord server:
 
-[![Join our Discord server!](https://invidget.switchblade.xyz/6akryGkETU)](https://discord.gg/6akryGkETU)
-
-Or the Matrix server (#emulatorjs:matrix.emulatorjs.org):
-
-<a href="https://matrix.to/#/#emulatorjs:matrix.emulatorjs.org" rel="noopener" target="_blank"><img src="https://matrix.to/img/matrix-badge.svg" alt="Chat on Matrix"></a>
-
-</div>
-
-<br>
-
-> [!NOTE]  
-> **As of EmulatorJS version 4.0, this project is no longer a reverse-engineered version of the emulatorjs.com project. It is now a complete re-write.**
-
-> [!WARNING]  
-> As of version 4.0.9 cores and minified files are no longer included in the repository. You will need to get them separately. You can get the from [releases](https://github.com/EmulatorJS/EmulatorJS/releases) or the * new CDN (see [this](#CDN) for more info). There is also a new version system that we will be using. (read [here](#Versioning) for more info).
->
-> The history of the project has been rewritten and force pushed. You will likely need to redo any active commits you have. Sorry for the inconvenience.
-
-> [!TIP]
-> Cloning the repository is no longer recommended for production use. You should use [releases](https://github.com/EmulatorJS/EmulatorJS/releases) or the [CDN](https://cdn.emulatorjs.org/) instead.
-
-<br>
-
-### Ads
-
-*This project has no ads.* <br>
-*Although, the demo page currently has an ad to help fund this project.* <br>
-*Ads on the demo page may come and go depending on how many people are* <br>
-*funding this project.* <br>
-
-*You can help fund this project on* ***[patreon]***
-
-<br>
-
-
-### Issues
-
-*If something doesn't work, please consider opening an* ***[Issue]*** <br>
-*with as many details as possible, as well as the console log.*
-
-<br>
-
-### Versioning
-There are 3 different version name that you need to be aware of:
-1. **stable** - This will be the most stable version of the emulator both code and cores will be tested before release. It will be updated every time a new version is released on GitHub. This is the default version on the Demo.
-2. **latest** - This will contain the latest code but use the stable cores. This will be updated every time the *main* branch is updated.
-3. **nightly** - This will contain the latest code and the latest cores. The cores will be updated every day, so this is consiterd alpha.
-
-### CDN
-There is a new CDN that you can use to get any version of the emulator. The cdn is `https://cdn.emulatorjs.org/`. You can use this to get the stable, latest, nightly and any other main version by setting your `EJS_pathtodata` to `https://cdn.emulatorjs.org/<version>/data/`.
-
-### Extensions
 
  **[GameLibrary]**
 
