@@ -5,182 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nintendo in the Stars</title>
     <style>
-        body, html {
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             background-color: #000;
-            flex-direction: column;
-        }
-        #game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            color: #d1768c;
+            height: 100vh;
         }
         #game {
             width: 80vw;
             height: 80vh;
             max-width: 100%;
             max-height: 100%;
-            border: 2px solid #d1768c;
+            border: none;
         }
-        select {
+        select, button {
             margin-top: 10px;
             padding: 5px;
-            background-color: #fff;
-            color: #000;
-        }
-        button {
-            margin-bottom: 10px;
-            padding: 5px 10px;
-            background-color: #d1768c;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #c1657e;
         }
         #loading {
             display: none;
-            color: #d1768c;
-            margin-top: 10px;
         }
     </style>
-</head>
-<body>
-    <p style="color: #d1768c; font-size: 24px;">Nintendo in the Stars</p>
-    <div id="game-container">
-        <div id="game"></div>
-        <button id="load-rom">Play Now</button>
-        <select id="rom-list">
-            <option value="">Select a game</option>
-        </select>
-        <p id="loading">Loading ROMs, please wait...</p>
-    </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        const EJS_player = "#game";
-        const EJS_core = "nes";
-        const EJS_color = "#263e0f";
-        const EJS_startOnLoaded = true;
-        let EJS_gameUrl = "contra.nes"; // Default game path
-
-        const loadingIndicator = document.getElementById("loading");
+        let EJS_gameUrl = ""; // URL of the game to load
 
         // Load the emulator script
-        function loadEmulatorScript(callback) {
+        function loadEmulator(callback) {
             const script = document.createElement("script");
             script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
-            script.onload = callback;  // Call the callback when the script is loaded
+            script.onload = callback;
             script.onerror = () => {
                 alert("Failed to load the emulator script.");
-                console.error("Emulator script could not be loaded.");
             };
             document.body.appendChild(script);
         }
 
-        // Fetch ROMs from the /roms/retro/ directory
+        // Fetch ROMs from the server
         async function fetchRoms() {
+            const romList = document.getElementById("rom-list");
+            romList.innerHTML = ""; // Clear existing options
+            const loadingIndicator = document.getElementById("loading");
             loadingIndicator.style.display = "block";
+
             try {
                 const response = await fetch("/roms/retro/");
                 if (!response.ok) throw new Error("Network response was not ok");
-                const data = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data, "text/html");
-                const files = [...doc.querySelectorAll("a")];
 
-                const romList = document.getElementById("rom-list");
-                files.forEach((file) => {
-                    const fileName = file.getAttribute("href");
-                    if (fileName.endsWith(".nes") || fileName.endsWith(".zip")) {
-                        const option = document.createElement("option");
-                        option.value = `/roms/retro/${fileName}`;
-                        option.textContent = decodeURIComponent(fileName);
-                        romList.appendChild(option);
-                    }
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, "text/html");
+                const files = doc.querySelectorAll("a[href$='.nes'], a[href$='.zip']");
+
+                files.forEach(file => {
+                    const option = document.createElement("option");
+                    option.value = `/roms/retro/${file.getAttribute("href")}`;
+                    option.textContent = file.textContent;
+                    romList.appendChild(option);
                 });
+
+                // Set initial ROM to Contra
+                const initialRom = "/roms/retro/contra.nes"; // Change this if needed
+                EJS_gameUrl = initialRom;
+                romList.value = initialRom; // Select the initial ROM
             } catch (error) {
                 console.error("Error fetching ROMs:", error);
-                alert("Failed to fetch ROMs. Check console for details.");
+                alert("Failed to fetch ROMs: " + error.message);
             } finally {
                 loadingIndicator.style.display = "none";
             }
         }
 
         // Load the selected ROM
-        document.getElementById("load-rom").addEventListener("click", async function () {
+        async function loadRom() {
             const romList = document.getElementById("rom-list");
             const selectedRom = romList.value;
 
             if (selectedRom) {
+                const loadingIndicator = document.getElementById("loading");
+                loadingIndicator.style.display = "block";
+
                 try {
                     if (selectedRom.endsWith(".zip")) {
                         const response = await fetch(selectedRom);
-                        if (!response.ok) throw new Error("Failed to fetch the zip file");
+                        if (!response.ok) throw new Error("Failed to fetch ZIP file");
+
                         const blob = await response.blob();
                         const zip = await JSZip.loadAsync(blob);
-
-                        let nesFile = null;
-                        zip.forEach((relativePath, file) => {
-                            if (relativePath.endsWith(".nes")) {
-                                nesFile = file;
-                            }
-                        });
+                        const nesFile = Object.values(zip.files).find(file => file.name.endsWith(".nes"));
 
                         if (nesFile) {
                             const nesData = await nesFile.async("blob");
                             const nesUrl = URL.createObjectURL(nesData);
                             EJS_gameUrl = nesUrl;
-                            reloadEmulator();
                         } else {
-                            alert("No .nes file found in the ZIP archive!");
+                            throw new Error("No .nes file found in the ZIP archive!");
                         }
-                    } else {
+                    } else if (selectedRom.endsWith(".nes")) {
                         EJS_gameUrl = selectedRom;
-                        reloadEmulator();
+                    } else {
+                        throw new Error("Invalid ROM format selected.");
                     }
+                    reloadEmulator();
                 } catch (error) {
-                    console.error("Error loading the selected ROM:", error);
-                    alert("Error loading the selected ROM. Please try again.");
+                    console.error("Error loading ROM:", error);
+                    alert("Error loading the selected ROM: " + error.message);
+                } finally {
+                    loadingIndicator.style.display = "none";
                 }
             } else {
                 alert("Please select a ROM file!");
             }
-        });
+        }
 
-        // Reload the emulator
         function reloadEmulator() {
-            if (typeof EJS_gameUrl !== 'undefined') {
-                window[EJS_core] = EJS_gameUrl;  // Assign the game URL to the core player
-                // After setting up the game URL, initiate the emulator
-                if (typeof EJS_startOnLoaded !== 'undefined' && EJS_startOnLoaded) {
-                    loadEmulatorScript(() => {
-                        // Start the emulator with the loaded game URL
-                        const emulator = new Emulator(EJS_player, EJS_core);
-                        emulator.load(EJS_gameUrl);
-                    });
-                }
-            } else {
-                alert("No game URL defined.");
-            }
+            // Ensure the emulator is loaded and can play the game
+            const emulator = new Emulator("#game", "nes");
+            emulator.load(EJS_gameUrl);
         }
 
         window.onload = function() {
             fetchRoms();
-            loadEmulatorScript(() => {
-                EJS_gameUrl = "contra.nes";  // Load default game URL
-                reloadEmulator();  // Start the emulator
+            loadEmulator(() => {
+                // Load the initial game if needed
+                if (EJS_gameUrl) {
+                    reloadEmulator();
+                }
             });
         };
     </script>
+</head>
+<body>
+    <h1>Nintendo in the Stars</h1>
+    <div id="game"></div>
+    <select id="rom-list">
+        <option value="">Select a game</option>
+    </select>
+    <button onclick="loadRom()">Play Now</button>
+    <p id="loading">Loading, please wait...</p>
 </body>
 </html>
+
 
 
 
