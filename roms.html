@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROMs List</title>
+</head>
+<style>
+    #rom-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+    #rom-list li {
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin: 5px 0;
+        transition: background-color 0.3s;
+    }
+    #rom-list li:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+<body>
+    <h1>List of ROMs</h1>
+    <div id="loading" style="display:none;">Loading ROMs...</div>
+    <ul id="rom-list"></ul>
+    
+
+    <script>
+      const loadingIndicator = document.getElementById('loading');
+      loadingIndicator.style.display = 'block';
+
+      fetch('http://10.0.0.214:3000/roms')
+          .then(response => {
+              loadingIndicator.style.display = 'none';
+              console.log('Response Status:', response.status); 
+              return response.json();
+          })
+          .then(data => {
+              console.log('Fetched Data:', data); // Log the fetched data
+              const romList = document.getElementById('rom-list');
+              if (data.length === 0) {
+                  const li = document.createElement('li');
+                  li.textContent = 'No ROMs found.';
+                  romList.appendChild(li);
+              } else {
+                  data.forEach(rom => {
+                      const li = document.createElement('li');
+                      li.textContent = rom.name; // Assuming your response has the key "name"
+                      romList.appendChild(li);
+                  });
+              }
+          })
+          .catch(error => {
+              loadingIndicator.style.display = 'none'; // Hide loading
+              console.error('Error fetching ROMs:', error);
+          });
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
