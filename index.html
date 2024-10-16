@@ -1,26 +1,168 @@
+<!DOCTYPE html>
 <html>
-    <head>
-    <link rel="manifest" href="/manifest.json" />
-        <style>
-            body, html {
-                margin: 0;
-                padding: 0;
+<head>
+    <title>EmulatorJS Demo</title>
+    <link rel="icon" href="docs/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body, html {
+            height: 100%;
+            background-color: black;
+            color: white;
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        body, #box, #top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #box {
+            color: #aaa;
+            height: 20em;
+            width: 30em;
+            max-width: 80%;
+            max-height: 80%;
+            background-color: transparent;
+            border-radius: 0.4em;
+            border: 2px solid #f19cbb;;
+            position: relative;
+            flex-direction: column;
+            transition-duration: 0.2s;
+            overflow: hidden;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 20px;
+            margin: 5px;
+        }
+        #box:hover, #box[drag] {
+            border-color: #b5a3c5;
+            color: # #b5a3c5;
+        }
+        #input {
+            cursor: pointer;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+        #display {
+            width: 100%;
+            height: 100%;
+        }
+        select, button {
+            padding: 0.6em 0.4em;
+            margin: 0.5em;
+            width: 15em;
+            max-width: 100%;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 16px;
+            background-color: #444;
+            color: #aaa;
+            border-radius: 0.4em;
+            border: 1px solid #f19cbb;
+            cursor: pointer;
+            transition-duration: 0.2s;
+        }
+        select:hover, button:hover {
+            background-color: #666;
+            color: #ddd;
+        }
+        .logo {
+            width: 130px;
+            height: 130px;
+            filter: drop-shadow(0 0 10px white);
+        }
+        #top {
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="top">
+        <img src="docs/Logo.png" alt="Logo" class="logo">
+    </div>
+    <div id="box">
+        <input type="file" id="input">
+       Nintendo in the Stars
+    </div>
+
+    <script>
+        let enableDebug = false;
+        let enableThreads = false;
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        if (urlParams.get('debug') == 1) {
+            enableDebug = true;
+            console.log("Debug is enabled");
+        }
+
+        if (urlParams.get('threads') == 1 && window.SharedArrayBuffer) {
+            enableThreads = true;
+            console.log("Threads are enabled");
+        }
+
+        const supportedCores = {
+            "nes": ["nes", "zip"]
+        };
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            const parts = file.name.split(".");
+            const ext = parts.pop().toLowerCase();
+
+            // Check if the file extension is supported (.nes or .zip)
+            if (!supportedCores["nes"].includes(ext)) {
+                alert("Unsupported file type. Please upload a .nes or .zip file.");
+                return;
             }
-        </style>
-    </head>
-    <body>
-        <div style="width:100%;height:100%;max-width:100%">
-            <div id="game"></div>
-        </div>
-        <script>
-            EJS_player = "#game";
-            EJS_core = "nes";
-            EJS_color = "#000000";
-            EJS_startOnLoaded = true;
-            EJS_pathtodata = "data/";
-            EJS_gameUrl = "contra.nes";
-        </script>
-        <script src="./loader.js"></script>
-    </body>
+
+            // Prepare for the game to be loaded
+            const div = document.createElement("div");
+            const sub = document.createElement("div");
+            const script = document.createElement("script");
+
+            sub.id = "game";
+            div.id = "display";
+
+            // Remove the input and logo once the game is loaded
+            const top = document.getElementById("top");
+            top.remove();
+            box.remove();
+            div.appendChild(sub);
+            document.body.appendChild(div);
+
+            // EmulatorJS config
+            window.EJS_player = "#game";
+            window.EJS_gameName = parts.join(".");
+            window.EJS_biosUrl = "";
+            window.EJS_gameUrl = `roms/retro/${file.name}`;  // Loads from roms/retro/
+            window.EJS_core = "nes";  // NES core
+            window.EJS_pathtodata = "data/";
+            window.EJS_startOnLoaded = true;
+            window.EJS_DEBUG_XX = enableDebug;
+            window.EJS_disableDatabases = true;
+            window.EJS_threads = enableThreads;
+
+            // Load the emulator script
+            script.src = "data/loader.js";  // Ensure this path is correct
+            document.body.appendChild(script);
+        };
+
+        // Drag and drop functionality
+        box.ondragover = () => box.setAttribute("drag", true);
+        box.ondragleave = () => box.removeAttribute("drag");
+    </script>
+</body>
 </html>
+
+
 
