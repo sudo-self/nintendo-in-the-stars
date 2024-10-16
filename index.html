@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nintendo in the Stars</title>
     <style>
         body,
         html {
@@ -45,16 +41,11 @@
         button:hover {
             background-color: #c1657e;
         }
-        p {
-            color: #d1768c;
-            font-size: 1.5rem;
-            margin: 20px 0;
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 </head>
 <body>
-    <p>Nintendo in the Stars</p>
+    <p style="color: #d1768c">Nintendo in the Stars</p>
     <div id="game-container">
         <div id="game"></div>
         <button id="load-rom">Play Now</button>
@@ -64,17 +55,21 @@
     </div>
 
     <script>
-        let EJS_player = "#game";
-        let EJS_core = "nes";
-        let EJS_color = "#263e0f";
-        let EJS_startOnLoaded = true;
-        let EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-        let EJS_gameUrl = "contra.nes";  // Default ROM
-        
+        EJS_player = "#game";
+        EJS_core = "nes";
+        EJS_gameName = "Contra";
+        EJS_color = "#263e0f";
+        EJS_startOnLoaded = true;
+        EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+
+        // Set the default game URL to load
+        EJS_gameUrl = "contra.nes";  // Default game
+
         const script = document.createElement("script");
         script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
         document.body.appendChild(script);
 
+        // Fetch ROMs from the /roms/retro/ directory
         fetch("/roms/retro/")
             .then((response) => response.text())
             .then((data) => {
@@ -84,18 +79,18 @@
 
                 const romList = document.getElementById("rom-list");
                 files.forEach((file) => {
-                    const fileName = decodeURIComponent(file.getAttribute("href"));
+                    const fileName = file.getAttribute("href");
                     if (fileName.endsWith(".nes") || fileName.endsWith(".zip")) {
                         const option = document.createElement("option");
                         option.value = `/roms/retro/${fileName}`;
-                        option.textContent = fileName;
+                        option.textContent = decodeURIComponent(fileName);
                         romList.appendChild(option);
                     }
                 });
             })
             .catch((error) => console.error("Error fetching ROMs:", error));
 
-     
+        // Load the selected ROM
         document.getElementById("load-rom").addEventListener("click", async function () {
             const romList = document.getElementById("rom-list");
             const selectedRom = romList.value;
@@ -131,7 +126,6 @@
             }
         });
 
-  
         function reloadEmulator() {
             document.body.removeChild(script);
             const newScript = document.createElement("script");
@@ -139,13 +133,18 @@
             document.body.appendChild(newScript);
         }
 
-
+        
         window.onload = function() {
+            EJS_gameUrl = "contra.nes";  
             reloadEmulator();
         };
     </script>
 </body>
 </html>
+
+
+
+
 
 
 
