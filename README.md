@@ -21,3 +21,5 @@
  gsutil cors set cors.json gs://your-bucket-Url.com
 
 ```
+
+####  all .nes files added to bucket are populated via API
