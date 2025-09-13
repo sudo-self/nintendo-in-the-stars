@@ -14,6 +14,27 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Nintendo in the stars",
   description: "NES Web Console",
+  openGraph: {
+    title: "Nintendo in the stars",
+    description: "Play NES games directly in your browser with NES Web Console.",
+    url: "https://nes-in-stars.vercel.app",
+    siteName: "NES Web Console",
+    images: [
+      {
+        url: "https://nes-in-stars.vercel.app/og-image.png", // make sure this exists
+        width: 1200,
+        height: 630,
+        alt: "Nintendo in the stars - NES Web Console",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nintendo in the stars",
+    description: "Play NES games directly in your browser with NES Web Console.",
+    images: ["https://nes-in-stars.vercel.app/og-image.png"],
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -27,3 +48,4 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
